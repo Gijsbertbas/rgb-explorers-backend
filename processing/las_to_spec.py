@@ -31,7 +31,7 @@ def las_to_spec(lasfile):
         return md - kb
 
     # two-way-time to depth relationship
-    interval = 2*(wdf.index.values[1]-wdf.index.values[0]) # factor 2 is added to create realistic velocities, to be sorted out...
+    interval = wdf.index.values[1]-wdf.index.values[0]
     scaled_dt = interval * np.nan_to_num(wdf['DT']) / 1e6
 
     tcum = 2 * np.cumsum(scaled_dt)
@@ -39,9 +39,10 @@ def las_to_spec(lasfile):
 
     # RESAMPLING FUNCTION
     dt = 0.004
+    mint = 0.5
     maxt = 2.5
 
-    t = np.arange(0, maxt, dt)
+    t = np.arange(mint, maxt, dt)
     Z_t = np.interp(x = t, xp = tdr, fp = wdf['AI'])
 
     RC_t = (Z_t[1:] - Z_t[:-1]) / (Z_t[1:] + Z_t[:-1])
@@ -57,7 +58,7 @@ def las_to_spec(lasfile):
 #    np.save('well_spectrum.npy',synth)
     return synth
 
-def rgb_log(numpy, frequencies):
+def rgb_log(filename, frequencies):
 
     clipping = 0.9
     f_power = .5
@@ -88,13 +89,17 @@ def rgb_log(numpy, frequencies):
     rgb_blend[:,:,2] = c_3[:,np.newaxis]
 
     fig, axes = plt.subplots(1,2,figsize=(10,10))
-    axes[0].imshow(rgb_blend)
-    axes[0].set_title('RGB blend')
-    axes[1].plot(synth[:,1],-t[:-1], 'k')
-    axes[1].fill_betweenx(-t[:-1], synth[:,1],  0,  synth[:,1] > 0.0,  color='k', alpha = 1.0)
-    axes[1].set_title('synthetic')
+    axes[0].plot(synth[:,1],-t[:-1], 'k')
+    axes[0].fill_betweenx(-t[:-1], synth[:,1],  0,  synth[:,1] > 0.0,  color='k', alpha = 1.0)
+    axes[0].set_title('synthetic', size=20)
+    axes[0].set_ylabel('time (ms)', size = 20)
+    axes[0].get_xaxis().set_ticks([])
+    axes[1].imshow(rgb_blend, aspect='auto')
+    axes[1].set_title('RGB blend', size=20)
+    axes[1].get_xaxis().set_ticks([])
+    axes[1].get_yaxis().set_ticks([])
 
-    wellname = file.split('.')[0]
+    wellname = filename.split('.')[0]
     plt.savefig('RGB_log_'+wellname+'.png')
 
     return
