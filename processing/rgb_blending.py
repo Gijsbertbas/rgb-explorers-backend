@@ -8,7 +8,7 @@ from numpy import fft
 import io
 
 import matplotlib
-# matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 PRECOMPUTED_DATA_FILE_NAME = r"C:\Users\J0436735\Downloads\f3sub_hack_cwt_cube.npy"
