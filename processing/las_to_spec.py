@@ -7,6 +7,7 @@ path = '../rgb-explorers/logs/'
 
 
 def las_to_spec(lasfile):
+
     w = Well.from_las(lasfile)# path+'F03-03_F03-03_Set.las'
     wdf = w.df()
     wdf = wdf.loc[~np.isnan(wdf['DT']),:]
@@ -53,6 +54,47 @@ def las_to_spec(lasfile):
         w = bruges.filters.ricker(f=cf, duration = 0.512, dt = 0.004)
         synth[:,i] = np.convolve(w, RC_t, mode='same')
 
-    np.save('well_spectrum.npy',synth)
+#    np.save('well_spectrum.npy',synth)
+    return synth
+
+def rgb_log(numpy, frequencies):
+
+    clipping = 0.9
+    f_power = .5
+
+    synth = np.zeros((len(RC_t),3))
+
+    for i, f in enumerate(frequencies):
+        w = bruges.filters.ricker(f=f, duration = 0.512, dt = 0.004)
+        synth[:,i] = np.convolve(w, RC_t, mode='same')
+
+    c_1 = synth[:,0] / np.amax(synth[:,0])
+    c_1 = c_1**f_power
+    c_1 = np.where(c_1 >= clipping, 1.0, c_1/clipping)
+
+    c_2 = synth[:,1] / np.amax(synth[:,1])
+    c_2 = c_2**f_power
+    c_2 = np.where(c_2 >= clipping, 1.0, c_2/clipping)
+
+    c_3 = synth[:,2] / np.amax(synth[:,2])
+    c_3 = c_3**f_power
+    c_3 = np.where(c_3 >= clipping, 1.0, c_3/clipping)
+
+    width = 150
+
+    rgb_blend = np.zeros((len(RC_t),width, 3))
+    rgb_blend[:,:,0] = c_1[:,np.newaxis]
+    rgb_blend[:,:,1] = c_2[:,np.newaxis]
+    rgb_blend[:,:,2] = c_3[:,np.newaxis]
+
+    fig, axes = plt.subplots(1,2,figsize=(10,10))
+    axes[0].imshow(rgb_blend)
+    axes[0].set_title('RGB blend')
+    axes[1].plot(synth[:,1],-t[:-1], 'k')
+    axes[1].fill_betweenx(-t[:-1], synth[:,1],  0,  synth[:,1] > 0.0,  color='k', alpha = 1.0)
+    axes[1].set_title('synthetic')
+
+    wellname = file.split('.')[0]
+    plt.savefig('RGB_log_'+wellname+'.png')
 
     return
