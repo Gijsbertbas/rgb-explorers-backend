@@ -1,4 +1,4 @@
-from flask import Flask, json, request
+from flask import Flask, json, request, jsonify
 
 import processing
 import processing.triplets
@@ -43,6 +43,13 @@ def rgb_blending():
     return "Done"
 
 
+@app.errorhandler(Exception)
+def handle_invalid_usage(error):
+    response = jsonify({'msg': str(error)})
+    response.status_code = 500
+    return response
+
+
 # from 3 to 80 with a step of 1, frequency is numpy.array's last dimension
 # FIXME Maybe the max is only 39...
 @app.route("/seismic_blend_png", methods=['GET'])
@@ -56,9 +63,10 @@ def render():
     f_b: index (integer) of the blue frequency.
 
     Test with:
-    curl -X GET --header "Content-Type: application/json"  "http://localhost:5000/seismic_blend_png?direction=x&index=50&f_r=5&f_g=6&f_b=20" --output some.png
+    curl -X GET --header "Content-Type: application/json" "http://localhost:5000/seismic_blend_png?direction=x&index=50&f_r=5&f_g=6&f_b=20" --output some.png
     Be careful no to forget the trailing 0 when sending floats.
-    :return: Raw png binary data.
+
+    :return: Raw png binary data or status code 500 with field "msg" if something went wrong.
     """
     direction = request.args.get("direction")
     if direction not in ('x', 'y', 't'):
@@ -74,16 +82,16 @@ def render():
 def rgb_log_png():
     """
     Returns the rbg log as a png file.
-    f_r: index of the red frequency (must be convertible to an integer).
-    f_g: index of the green frequency (must be convertible to an integer).
-    f_b: index of the blue frequency (must be convertible to an integer).
+    f_r: index (integer) of the red frequency.
+    f_g: index (integer) of the green frequency.
+    f_b: index (integer) of the blue frequency.
     x (optional, default is 5): x coordinate index of the well.
     y (optional, default is 5): y coordinate index of the well.
 
     Test with:
-    curl -X GET --header "Content-Type: application/json"  "http://localhost:5000/rgb_log_png?f_r=5&f_g=6&f_b=20" --output some.png
+    curl -X GET --header "Content-Type: application/json" "http://localhost:5000/rgb_log_png?f_r=5&f_g=6&f_b=20" --output some.png
 
-    :return: Raw png binary data.
+    :return: Raw png binary data or status code 500 with field "msg" if something went wrong.
     """
     f_r = int(request.args.get("f_r"))
     f_g = int(request.args.get("f_g"))

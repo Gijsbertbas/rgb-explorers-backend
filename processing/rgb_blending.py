@@ -40,6 +40,9 @@ def clip_and_normalize(array):
 
 def seismic_blend_png(direction, index, frequencies):
     precomputed_data = get_precomputed_data()
+    freq_min, freq_max = 0, precomputed_data.shape[3] - 1
+    if any(filter(lambda f: f < freq_min or f > freq_max, frequencies)):
+        raise ValueError("Frequencies are supposed to rely in [%s, %s[." % (freq_min, freq_max))
     slices = []
     for freq in frequencies:
         if direction == 'x':
