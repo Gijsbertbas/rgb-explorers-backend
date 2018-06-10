@@ -73,11 +73,11 @@ def render():
     if direction not in ('x', 'y', 't'):
         raise ValueError("direction '%s' is not in 'x', 'y', 't'" % direction)
     index = int(request.args.get("index"))
-    f_r = int(request.args.get("f_r"))
-    f_g = int(request.args.get("f_g"))
-    f_b = int(request.args.get("f_b"))
-    png_binary_data = processing.rgb_blending.seismic_blend_png(direction, index, (f_r, f_g, f_b))
-    return Response(png_binary_data, mimetype='image/png')
+    f_r = float(request.args.get("f_r"))
+    f_g = float(request.args.get("f_g"))
+    f_b = float(request.args.get("f_b"))
+    png_binary_data = processing.rgb_blending.line_blend_png(direction, index, (f_r, f_g, f_b))
+    return Response(png_binary_data, mimetype='text/plain')
 
 
 @app.route("/api/rgb_log_png", methods=['GET'])
