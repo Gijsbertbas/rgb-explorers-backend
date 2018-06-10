@@ -31,7 +31,7 @@ def get_precomputed_data():
 def build_b64_png(array, aspect_ratio=1):
     _ = plt.imshow(array, aspect=aspect_ratio)
     mem_file = io.BytesIO()
-    plt.savefig(mem_file, format="png")
+    plt.savefig(mem_file, format="png", bbox_inches='tight', pad_inches=0)
     mem_file.seek(0)
     return base64.b64encode(mem_file.read())
 
