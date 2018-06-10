@@ -48,10 +48,17 @@ def rgb_blending():
 @app.route("/seismic_blend_png", methods=['GET'])
 def render():
     """
+    Returns the rbg blended slice as a png file.
+    direction: a character ('x', 'y', 't') describing the direction perpendicular to the slice.
+    index: index (integer) of the slice in the cube.
+    f_r: index (integer) of the red frequency.
+    f_g: index (integer) of the green frequency.
+    f_b: index (integer) of the blue frequency.
+
     Test with:
-    curl -X GET --header "Content-Type: application/json"  "http://localhost:5000/seismic_blend_png?direction=x&index=50&f_r=5&f_g=6&f_b=20"
+    curl -X GET --header "Content-Type: application/json"  "http://localhost:5000/seismic_blend_png?direction=x&index=50&f_r=5&f_g=6&f_b=20" --output some.png
     Be careful no to forget the trailing 0 when sending floats.
-    :return:
+    :return: Raw png binary data.
     """
     direction = request.args.get("direction")
     if direction not in ('x', 'y', 't'):
@@ -66,15 +73,23 @@ def render():
 @app.route("/rgb_log_png", methods=['GET'])
 def rgb_log_png():
     """
+    Returns the rbg log as a png file.
+    f_r: index of the red frequency (must be convertible to an integer).
+    f_g: index of the green frequency (must be convertible to an integer).
+    f_b: index of the blue frequency (must be convertible to an integer).
+    x (optional, default is 5): x coordinate index of the well.
+    y (optional, default is 5): y coordinate index of the well.
+
     Test with:
-    curl -X GET --header "Content-Type: application/json"  "http://localhost:5000/rgb_log_png?f_r=5&f_g=6&f_b=20"
-    Be careful no to forget the trailing 0 when sending floats.
-    :return:
+    curl -X GET --header "Content-Type: application/json"  "http://localhost:5000/rgb_log_png?f_r=5&f_g=6&f_b=20" --output some.png
+
+    :return: Raw png binary data.
     """
     f_r = int(request.args.get("f_r"))
     f_g = int(request.args.get("f_g"))
     f_b = int(request.args.get("f_b"))
-    x, y = 5, 5
+    x = int(request.args.get("x", 5))
+    y = int(request.args.get("y", 5))
     return processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b))
 
 
