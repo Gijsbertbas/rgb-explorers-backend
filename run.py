@@ -4,6 +4,7 @@ from flask_cors import CORS
 import processing
 import processing.triplets
 import processing.rgb_blending
+import processing.las_to_spec
 
 app = Flask(__name__)
 CORS(app)
@@ -106,7 +107,8 @@ def rgb_log_png():
     y = int(request.args.get("y", 5))
     dpi = float(request.args.get("dpi", 100))
 
-    png_b64_data = processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b), dpi)
+    # png_b64_data = processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b), dpi)
+    png_b64_data = processing.las_to_spec.rgb_log((f_r, f_g, f_b), dpi)
     return Response(png_b64_data, mimetype='text/plain')
 
 

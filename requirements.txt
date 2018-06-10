@@ -5,3 +5,5 @@ numpy
 scipy
 segyio
 matplotlib
+bruges
+welly
