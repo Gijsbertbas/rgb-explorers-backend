@@ -62,6 +62,7 @@ def render():
     f_r: index (integer) of the red frequency.
     f_g: index (integer) of the green frequency.
     f_b: index (integer) of the blue frequency.
+    dpi: integer related to the size of the image. Default is 100.
 
     Test with:
     curl -X GET --header "Content-Type: application/json" "http://localhost:5000/api/seismic_blend_png?direction=x&index=50&f_r=5&f_g=6&f_b=20" --output some.png
@@ -76,7 +77,9 @@ def render():
     f_r = float(request.args.get("f_r"))
     f_g = float(request.args.get("f_g"))
     f_b = float(request.args.get("f_b"))
-    png_b64_data = processing.rgb_blending.line_blend_png(direction, index, (f_r, f_g, f_b))
+    dpi = float(request.args.get("dpi", 100))
+
+    png_b64_data = processing.rgb_blending.line_blend_png(direction, index, (f_r, f_g, f_b), dpi)
     return Response(png_b64_data, mimetype='text/plain')
 
 
@@ -89,6 +92,7 @@ def rgb_log_png():
     f_b: index (integer) of the blue frequency.
     x (optional, default is 5): x coordinate index of the well.
     y (optional, default is 5): y coordinate index of the well.
+    dpi: integer related to the size of the image. Default is 100.
 
     Test with:
     curl -X GET --header "Content-Type: application/json" "http://localhost:5000/api/rgb_log_png?f_r=5&f_g=6&f_b=20" --output some.png
@@ -100,7 +104,9 @@ def rgb_log_png():
     f_b = int(request.args.get("f_b"))
     x = int(request.args.get("x", 5))
     y = int(request.args.get("y", 5))
-    png_b64_data = processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b))
+    dpi = float(request.args.get("dpi", 100))
+
+    png_b64_data = processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b), dpi)
     return Response(png_b64_data, mimetype='text/plain')
 
 

@@ -28,10 +28,10 @@ def get_precomputed_data():
     return PRECOMPUTED_DATA
 
 
-def build_b64_png(array, aspect_ratio=1):
+def build_b64_png(array, aspect_ratio=1, dpi=100):
     _ = plt.imshow(array, aspect=aspect_ratio)
     mem_file = io.BytesIO()
-    plt.savefig(mem_file, format="png", bbox_inches='tight', pad_inches=0)
+    plt.savefig(mem_file, format="png", bbox_inches='tight', pad_inches=0, dpi=dpi)
     mem_file.seek(0)
     return base64.b64encode(mem_file.read())
 
@@ -62,11 +62,11 @@ def seismic_blend_png(direction, index, frequencies):
     return build_b64_png(result)
 
 
-def rgb_log_png(x, y, frequencies):
+def rgb_log_png(x, y, frequencies, dpi):
     precomputed_data = get_precomputed_data()
     slices = list(map(lambda freq: clip_and_normalize(precomputed_data[x, y, :, freq]), frequencies))
     r = numpy.swapaxes(numpy.dstack(slices), 0, 1)
-    return build_b64_png(r, aspect_ratio=0.05)
+    return build_b64_png(r, aspect_ratio=0.05, dpi=dpi)
 
 
 def compute_whole_sgy_file():
@@ -116,7 +116,7 @@ def ricker_expansion(trace, Fc):
     return expansion
 
 
-def line_blend_png(direction, index, frequencies):
+def line_blend_png(direction, index, frequencies, dpi):
     line = slice_sgy(direction, index)
     shape = line.shape
     slices = []
@@ -125,7 +125,7 @@ def line_blend_png(direction, index, frequencies):
         trace = line[:,x]
         E = ricker_expansion(trace, frequencies)
         blend_line[:, x, :] = clip_and_normalize(E)
-    return build_b64_png(numpy.swapaxes(blend_line, 0, 1))
+    return build_b64_png(numpy.swapaxes(blend_line, 0, 1), dpi=dpi)
 
 def build_synth(rgb_array):
     synth = numpy.squeeze(rgb_array[:,:,1])
