@@ -10,7 +10,7 @@ import bruges
 import os
 
 
-from processing.png import build_b64_png
+from png import build_b64_png
 
 import matplotlib
 matplotlib.use('Agg')
@@ -31,7 +31,7 @@ def get_precomputed_data():
 
 
 def clip_and_normalize(array):
-    max_ = numpy.argmax(array)
+    max_ = numpy.max(numpy.abs(array))
     normalized_array = array / max_ + 1.e-12
     clip_max = 0.4
     clipped_array = numpy.clip(normalized_array, 0, clip_max)

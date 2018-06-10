@@ -1,5 +1,5 @@
 import os
-
+from scipy.signal import hilbert
 from welly import Well
 import bruges
 import numpy as np
@@ -86,7 +86,8 @@ def __rgb_log(path_to_las, frequencies):
 
     for i, f in enumerate(frequencies):
         w = bruges.filters.ricker(f=f, duration = 0.512, dt = 0.004)
-        synth[:,i] = np.convolve(w, RC_t, mode='same')
+        bandpass = np.convolve(w, RC_t, mode='same')
+        synth[:,i] = numpy.abs(hilbert(bandpass))
 
     c_1 = synth[:,0] / np.amax(synth[:,0])
     c_1 = c_1**f_power
