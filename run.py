@@ -1,4 +1,4 @@
-from flask import Flask, json, request, jsonify
+from flask import Flask, json, request, jsonify, Response
 
 import processing
 import processing.triplets
@@ -75,7 +75,8 @@ def render():
     f_r = int(request.args.get("f_r"))
     f_g = int(request.args.get("f_g"))
     f_b = int(request.args.get("f_b"))
-    return processing.rgb_blending.seismic_blend_png(direction, index, (f_r, f_g, f_b))
+    png_binary_data = processing.rgb_blending.seismic_blend_png(direction, index, (f_r, f_g, f_b))
+    return Response(png_binary_data, mimetype='image/png')
 
 
 @app.route("/rgb_log_png", methods=['GET'])
@@ -98,7 +99,8 @@ def rgb_log_png():
     f_b = int(request.args.get("f_b"))
     x = int(request.args.get("x", 5))
     y = int(request.args.get("y", 5))
-    return processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b))
+    png_binary_data = processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b))
+    return Response(png_binary_data, mimetype='image/png')
 
 
 if __name__ == "__main__":
