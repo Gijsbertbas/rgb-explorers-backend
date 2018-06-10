@@ -2,7 +2,7 @@
 # No flask here
 
 import segyio
-from scipy.signal import cwt, ricker
+from scipy.signal import cwt, ricker, hilbert
 import numpy
 from numpy import fft
 import io
@@ -37,11 +37,11 @@ def build_b64_png(array, aspect_ratio=1, dpi=100):
 
 
 def clip_and_normalize(array):
-    max_ = numpy.max(array)
-    normalized_array = array / (abs(max_) + 1.e-12)
-    clip_max = 0.5
+    max_ = numpy.argmax(array)
+    normalized_array = array / max_ + 1.e-12
+    clip_max = 0.4
     clipped_array = numpy.clip(normalized_array, 0, clip_max)
-    return clipped_array / clip_max
+    return clipped_array**0.6 / clip_max
 
 
 def seismic_blend_png(direction, index, frequencies):
@@ -112,7 +112,7 @@ def ricker_expansion(trace, Fc):
     for i, fc in enumerate(Fc):
         w = bruges.filters.ricker(f=fc, duration=0.512, dt=0.004)
         bandpass = numpy.squeeze(numpy.convolve(w, trace, mode='same'))
-        expansion[:, i-1] = bandpass
+        expansion[:, i-1] = numpy.abs(hilbert(bandpass))
     return expansion
 
 
@@ -121,11 +121,11 @@ def line_blend_png(direction, index, frequencies, dpi):
     shape = line.shape
     slices = []
     blend_line = numpy.zeros((*line.shape, 3))
-    for x in range(0, shape[1]):
-        trace = line[:,x]
-        E = ricker_expansion(trace, frequencies)
-        blend_line[:, x, :] = clip_and_normalize(E)
-    return build_b64_png(numpy.swapaxes(blend_line, 0, 1), dpi=dpi)
+    for x in range(0, shape[0]):
+        trace = line[x,:]
+        blend_line[x, :, :] = ricker_expansion(trace, frequencies)
+    blend_line = clip_and_normalize(blend_line)
+    return build_b64_png(numpy.swapaxes(numpy.flip(blend_line,axis=2), 0, 1), dpi=dpi)
 
 def build_synth(rgb_array):
     synth = numpy.squeeze(rgb_array[:,:,1])
