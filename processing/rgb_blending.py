@@ -8,7 +8,9 @@ from numpy import fft
 import io
 import bruges
 import os
-import base64
+
+
+from processing.png import build_b64_png
 
 import matplotlib
 matplotlib.use('Agg')
@@ -26,14 +28,6 @@ def get_precomputed_data():
     if PRECOMPUTED_DATA is None:
         PRECOMPUTED_DATA = numpy.load(PRECOMPUTED_DATA_FILE_NAME)
     return PRECOMPUTED_DATA
-
-
-def build_b64_png(array, aspect_ratio=1, dpi=100):
-    _ = plt.imshow(array, aspect=aspect_ratio)
-    mem_file = io.BytesIO()
-    plt.savefig(mem_file, format="png", bbox_inches='tight', pad_inches=0, dpi=dpi)
-    mem_file.seek(0)
-    return base64.b64encode(mem_file.read())
 
 
 def clip_and_normalize(array):
@@ -126,6 +120,7 @@ def line_blend_png(direction, index, frequencies, dpi):
         E = ricker_expansion(trace, frequencies)
         blend_line[:, x, :] = clip_and_normalize(E)
     return build_b64_png(numpy.swapaxes(blend_line, 0, 1), dpi=dpi)
+
 
 def build_synth(rgb_array):
     synth = numpy.squeeze(rgb_array[:,:,1])

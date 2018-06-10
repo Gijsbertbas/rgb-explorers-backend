@@ -1,6 +1,10 @@
+import os
+
 from welly import Well
 import bruges
 import numpy as np
+
+from processing.png import build_b64_png
 
 path = '../rgb-explorers/logs/'
 #'F02-01_F02-01_Set.las'
@@ -64,8 +68,15 @@ def las_to_spec(path_to_las):
 #    np.save('well_spectrum.npy',synth)
     return synth
 
-def rgb_log(path_to_las, frequencies):
 
+LAS_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","..", "F03-03_F03-03_Set.las"))
+
+
+def rgb_log(frequencies, dpi):
+    return build_b64_png(__rgb_log(LAS_FILE_PATH, frequencies), aspect_ratio=0.01, dpi=dpi)
+
+
+def __rgb_log(path_to_las, frequencies):
     RC_t = las_to_rc(path_to_las)
 
     clipping = 0.9
