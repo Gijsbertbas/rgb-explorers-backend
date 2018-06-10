@@ -76,8 +76,8 @@ def render():
     f_r = float(request.args.get("f_r"))
     f_g = float(request.args.get("f_g"))
     f_b = float(request.args.get("f_b"))
-    png_binary_data = processing.rgb_blending.line_blend_png(direction, index, (f_r, f_g, f_b))
-    return Response(png_binary_data, mimetype='text/plain')
+    png_b64_data = processing.rgb_blending.line_blend_png(direction, index, (f_r, f_g, f_b))
+    return Response(png_b64_data, mimetype='text/plain')
 
 
 @app.route("/api/rgb_log_png", methods=['GET'])
@@ -100,8 +100,8 @@ def rgb_log_png():
     f_b = int(request.args.get("f_b"))
     x = int(request.args.get("x", 5))
     y = int(request.args.get("y", 5))
-    png_binary_data = processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b))
-    return Response(png_binary_data, mimetype='image/png')
+    png_b64_data = processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b))
+    return Response(png_b64_data, mimetype='text/plain')
 
 
 if __name__ == "__main__":
