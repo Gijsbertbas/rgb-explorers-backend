@@ -1,7 +1,7 @@
 Flask
+flask-cors
 boto3
 numpy
 scipy
 segyio
 matplotlib
-pylab

@@ -8,13 +8,16 @@ from numpy import fft
 import io
 import bruges
 import os
+import base64
 
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# PRECOMPUTED_DATA_FILE_NAME = r"C:\Users\J0436735\Downloads\f3sub_hack_cwt_cube.npy"
 PRECOMPUTED_DATA_FILE_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","..", "f3sub_hack_cwt_cube_well_f03-03.npy"))
+SEISMIC_SGY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","..", "F03_Subcrop.sgy"))
+print(PRECOMPUTED_DATA_FILE_NAME)
+print(SEISMIC_SGY)
 PRECOMPUTED_DATA = None
 
 
@@ -25,12 +28,12 @@ def get_precomputed_data():
     return PRECOMPUTED_DATA
 
 
-def build_png(array, aspect_ratio=1):
+def build_b64_png(array, aspect_ratio=1):
     _ = plt.imshow(array, aspect=aspect_ratio)
     mem_file = io.BytesIO()
-    plt.savefig(mem_file, format="png")
+    plt.savefig(mem_file, format="png", bbox_inches='tight', pad_inches=0)
     mem_file.seek(0)
-    return mem_file.read()
+    return base64.b64encode(mem_file.read())
 
 
 def clip_and_normalize(array):
@@ -56,27 +59,14 @@ def seismic_blend_png(direction, index, frequencies):
             freq_data = precomputed_data[:, :, index, freq]
         slices.append(clip_and_normalize(freq_data.T))
     result = numpy.dstack(slices)
-    return build_png(result)
+    return build_b64_png(result)
 
 
 def rgb_log_png(x, y, frequencies):
     precomputed_data = get_precomputed_data()
     slices = list(map(lambda freq: clip_and_normalize(precomputed_data[x, y, :, freq]), frequencies))
     r = numpy.swapaxes(numpy.dstack(slices), 0, 1)
-    return build_png(r, aspect_ratio=0.05)
-
-
-if __name__ == '__main__':
-    rgb_log_png(5, 5, (10, 15, 20))
-
-
-def compute(rbg):
-    """
-    Performs the rgb blending.
-    :param rbg: rgb triplet (20, 40, 60) to be computed.
-    :return:
-    """
-    pass
+    return build_b64_png(r, aspect_ratio=0.05)
 
 
 def compute_whole_sgy_file():
@@ -109,7 +99,7 @@ def compute_whole_sgy_file():
     return cwt_cube, volume
 
 def slice_sgy(direction, index):
-    seismic_sgy = "../../F03_Subcrop.sgy"
+    seismic_sgy = SEISMIC_SGY
     with segyio.open(seismic_sgy, 'r') as f:
         if direction == 'x':
             line = f.iline[index]
@@ -135,7 +125,7 @@ def line_blend_png(direction, index, frequencies):
         trace = line[:,x]
         E = ricker_expansion(trace, frequencies)
         blend_line[:, x, :] = clip_and_normalize(E)
-    return build_png(numpy.swapaxes(blend_line,0,1))
+    return build_b64_png(numpy.swapaxes(blend_line, 0, 1))
 
 def build_synth(rgb_array):
     synth = numpy.squeeze(rgb_array[:,:,1])

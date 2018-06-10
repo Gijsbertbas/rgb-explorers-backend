@@ -1,11 +1,12 @@
 from flask import Flask, json, request, jsonify, Response
+from flask_cors import CORS
 
 import processing
 import processing.triplets
 import processing.rgb_blending
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/api/generate_triplets', methods=['POST'])
 def generate_triplets():
@@ -72,11 +73,11 @@ def render():
     if direction not in ('x', 'y', 't'):
         raise ValueError("direction '%s' is not in 'x', 'y', 't'" % direction)
     index = int(request.args.get("index"))
-    f_r = int(request.args.get("f_r"))
-    f_g = int(request.args.get("f_g"))
-    f_b = int(request.args.get("f_b"))
-    png_binary_data = processing.rgb_blending.seismic_blend_png(direction, index, (f_r, f_g, f_b))
-    return Response(png_binary_data, mimetype='image/png')
+    f_r = float(request.args.get("f_r"))
+    f_g = float(request.args.get("f_g"))
+    f_b = float(request.args.get("f_b"))
+    png_b64_data = processing.rgb_blending.line_blend_png(direction, index, (f_r, f_g, f_b))
+    return Response(png_b64_data, mimetype='text/plain')
 
 
 @app.route("/api/rgb_log_png", methods=['GET'])
@@ -99,8 +100,8 @@ def rgb_log_png():
     f_b = int(request.args.get("f_b"))
     x = int(request.args.get("x", 5))
     y = int(request.args.get("y", 5))
-    png_binary_data = processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b))
-    return Response(png_binary_data, mimetype='image/png')
+    png_b64_data = processing.rgb_blending.rgb_log_png(x, y, (f_r, f_g, f_b))
+    return Response(png_b64_data, mimetype='text/plain')
 
 
 if __name__ == "__main__":
