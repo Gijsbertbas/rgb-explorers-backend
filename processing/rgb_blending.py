@@ -6,6 +6,7 @@ from scipy.signal import cwt, ricker
 import numpy
 from numpy import fft
 import io
+import bruges
 
 import matplotlib
 matplotlib.use('Agg')
@@ -104,3 +105,32 @@ def compute_whole_sgy_file():
             cwt_cube[i, x, :, :] = numpy.fliplr(c).T
 
     return cwt_cube, volume
+
+def slice_sgy(direction, index):
+    seismic_sgy = "../../F03_Subcrop.sgy"
+    with segyio.open(seismic_sgy, 'r') as f:
+        if direction == 'x':
+            line = f.iline[index]
+        elif direction == 'y':
+            line = f.xline[index]
+    return line
+
+def ricker_expansion(trace, Fc):
+    expansion = numpy.zeros((len(trace), len(Fc)))
+    for i, fc in enumerate(Fc):
+        w = bruges.filters.ricker(f=fc, duration=0.512, dt=0.004)
+        bandpass = numpy.squeeze(numpy.convolve(w, trace, mode='same'))
+        expansion[:, i-1] = bandpass
+    return expansion
+
+
+def line_blend_png(direction, index, frequencies):
+    line = slice_sgy(direction, index)
+    shape = line.shape
+    slices = []
+    blend_line = numpy.zeros((*line.shape, 3))
+    for x in range(0, shape[1]):
+        trace = line[:,x]
+        E = ricker_expansion(trace, frequencies)
+        blend_line[:, x, :] = clip_and_normalize(E)
+    return build_png(numpy.swapaxes(blend_line,0,1))
