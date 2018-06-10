@@ -4,11 +4,11 @@ import numpy as np
 
 path = '../rgb-explorers/logs/'
 #'F02-01_F02-01_Set.las'
+#'F03-03_F03-03_Set.las'
 
+def las_to_rc(path_to_las):
 
-def las_to_spec(lasfile):
-
-    w = Well.from_las(lasfile)# path+'F03-03_F03-03_Set.las'
+    w = Well.from_las(path_to_las)
     wdf = w.df()
     wdf = wdf.loc[~np.isnan(wdf['DT']),:]
     wdf['AI'] = w.df()['RHOB']*1e6/w.df()['DT']
@@ -39,14 +39,20 @@ def las_to_spec(lasfile):
 
     # RESAMPLING FUNCTION
     dt = 0.004
-    mint = 0.5
-    maxt = 2.5
+    mint = 0.0
+    maxt = 1.8
 
     t = np.arange(mint, maxt, dt)
     Z_t = np.interp(x = t, xp = tdr, fp = wdf['AI'])
 
     RC_t = (Z_t[1:] - Z_t[:-1]) / (Z_t[1:] + Z_t[:-1])
-    RC_t = np.nan_to_num(RC_t)
+    return np.nan_to_num(RC_t)
+
+
+def las_to_spec(path_to_las):
+
+    RC_t = las_to_rc(path_to_las)
+
     Cf = np.arange(3,80,2)
 
     synth = np.zeros((len(RC_t),len(Cf)))
@@ -58,7 +64,9 @@ def las_to_spec(lasfile):
 #    np.save('well_spectrum.npy',synth)
     return synth
 
-def rgb_log(filename, frequencies):
+def rgb_log(path_to_las, frequencies):
+
+    RC_t = las_to_rc(path_to_las)
 
     clipping = 0.9
     f_power = .5
@@ -81,25 +89,26 @@ def rgb_log(filename, frequencies):
     c_3 = c_3**f_power
     c_3 = np.where(c_3 >= clipping, 1.0, c_3/clipping)
 
-    width = 150
-
-    rgb_blend = np.zeros((len(RC_t),width, 3))
+    rgb_blend = np.zeros((len(RC_t),1, 3))
     rgb_blend[:,:,0] = c_1[:,np.newaxis]
     rgb_blend[:,:,1] = c_2[:,np.newaxis]
     rgb_blend[:,:,2] = c_3[:,np.newaxis]
 
-    fig, axes = plt.subplots(1,2,figsize=(10,10))
-    axes[0].plot(synth[:,1],-t[:-1], 'k')
-    axes[0].fill_betweenx(-t[:-1], synth[:,1],  0,  synth[:,1] > 0.0,  color='k', alpha = 1.0)
-    axes[0].set_title('synthetic', size=20)
-    axes[0].set_ylabel('time (ms)', size = 20)
-    axes[0].get_xaxis().set_ticks([])
-    axes[1].imshow(rgb_blend, aspect='auto')
-    axes[1].set_title('RGB blend', size=20)
-    axes[1].get_xaxis().set_ticks([])
-    axes[1].get_yaxis().set_ticks([])
+#    fig, axes = plt.subplots(1,2,figsize=(10,10))
+#    axes[0].plot(synth[:,1],-t[:-1], 'k')
+#    axes[0].fill_betweenx(-t[:-1], synth[:,1],  0,  synth[:,1] > 0.0,  color='k', alpha = 1.0)
+#    axes[0].set_title('synthetic', size=20)
+#    axes[0].set_ylabel('time (ms)', size = 20)
+#    axes[0].get_xaxis().set_ticks([])
+#    axes[1].imshow(rgb_blend, aspect='auto')
+#    axes[1].set_title('RGB blend', size=20)
+#    axes[1].get_xaxis().set_ticks([])
+#    axes[1].get_yaxis().set_ticks([])
 
-    wellname = filename.split('.')[0]
-    plt.savefig('RGB_log_'+wellname+'.png')
+#    wellname = filename.split('.')[0]
+#    plt.savefig('RGB_log_'+wellname+'.png')
 
-    return
+    return rgb_blend
+
+if __name__ == '__main__':
+    pass
