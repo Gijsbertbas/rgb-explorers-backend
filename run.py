@@ -7,13 +7,13 @@ import processing.rgb_blending
 app = Flask(__name__)
 
 
-@app.route('/generate_triplets', methods=['POST'])
+@app.route('/api/generate_triplets', methods=['POST'])
 def generate_triplets():
     """
     Returns the list of triplets.
 
     Test with:
-    curl -X POST --header "Content-Type: application/json" --data '{"hello":"world"}' http://localhost:5000/generate_triplets
+    curl -X POST --header "Content-Type: application/json" --data '{"hello":"world"}' http://localhost:5000/api/generate_triplets
 
     For the moment data is not used.
     :return: The list of triplets.
@@ -24,13 +24,13 @@ def generate_triplets():
     return json.jsonify(triplets)
 
 
-@app.route('/rgb_blending', methods=['POST'])
+@app.route('/api/rgb_blending', methods=['POST'])
 def rgb_blending():
     """
     Compute the rbg blendings for all the triplets from the data body.
 
     Test with:
-    curl -X POST --header "Content-Type: application/json" --data '[[1, 2, 3],[1.0, 3.3, 5],[1.0, 7, 15]]' http://localhost:5000/rbg_blending
+    curl -X POST --header "Content-Type: application/json" --data '[[1, 2, 3],[1.0, 3.3, 5],[1.0, 7, 15]]' http://localhost:5000/api/rbg_blending
     Be careful no to forget the trailing 0 when sending floats.
 
     For the moment data is not used.
@@ -52,7 +52,7 @@ def handle_invalid_usage(error):
 
 # from 3 to 80 with a step of 1, frequency is numpy.array's last dimension
 # FIXME Maybe the max is only 39...
-@app.route("/seismic_blend_png", methods=['GET'])
+@app.route("/api/seismic_blend_png", methods=['GET'])
 def render():
     """
     Returns the rbg blended slice as a png file.
@@ -63,7 +63,7 @@ def render():
     f_b: index (integer) of the blue frequency.
 
     Test with:
-    curl -X GET --header "Content-Type: application/json" "http://localhost:5000/seismic_blend_png?direction=x&index=50&f_r=5&f_g=6&f_b=20" --output some.png
+    curl -X GET --header "Content-Type: application/json" "http://localhost:5000/api/seismic_blend_png?direction=x&index=50&f_r=5&f_g=6&f_b=20" --output some.png
     Be careful no to forget the trailing 0 when sending floats.
 
     :return: Raw png binary data or status code 500 with field "msg" if something went wrong.
@@ -79,7 +79,7 @@ def render():
     return Response(png_binary_data, mimetype='image/png')
 
 
-@app.route("/rgb_log_png", methods=['GET'])
+@app.route("/api/rgb_log_png", methods=['GET'])
 def rgb_log_png():
     """
     Returns the rbg log as a png file.
@@ -90,7 +90,7 @@ def rgb_log_png():
     y (optional, default is 5): y coordinate index of the well.
 
     Test with:
-    curl -X GET --header "Content-Type: application/json" "http://localhost:5000/rgb_log_png?f_r=5&f_g=6&f_b=20" --output some.png
+    curl -X GET --header "Content-Type: application/json" "http://localhost:5000/api/rgb_log_png?f_r=5&f_g=6&f_b=20" --output some.png
 
     :return: Raw png binary data or status code 500 with field "msg" if something went wrong.
     """
