@@ -13,3 +13,6 @@ def build_b64_png(array, aspect_ratio=1, dpi=100):
     plt.savefig(mem_file, format="png", bbox_inches='tight', pad_inches=0, dpi=dpi)
     mem_file.seek(0)
     return base64.b64encode(mem_file.read())
+
+if __name__ == '__main__':
+    pass
