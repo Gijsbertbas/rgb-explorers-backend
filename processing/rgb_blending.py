@@ -7,12 +7,14 @@ import numpy
 from numpy import fft
 import io
 import bruges
+import os
 
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-PRECOMPUTED_DATA_FILE_NAME = r"C:\Users\J0436735\Downloads\f3sub_hack_cwt_cube.npy"
+# PRECOMPUTED_DATA_FILE_NAME = r"C:\Users\J0436735\Downloads\f3sub_hack_cwt_cube.npy"
+PRECOMPUTED_DATA_FILE_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","..", "f3sub_hack_cwt_cube_well_f03-03.npy"))
 PRECOMPUTED_DATA = None
 
 
