@@ -5,6 +5,7 @@ import bruges
 import numpy as np
 
 from processing.png import build_b64_png
+from processing.rgb_blending import ricker_expansion, clip_and_normalize
 
 path = '../rgb-explorers/logs/'
 #'F02-01_F02-01_Set.las'
@@ -73,7 +74,7 @@ LAS_FILE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..","..
 
 
 def rgb_log(frequencies, dpi):
-    return build_b64_png(__rgb_log(LAS_FILE_PATH, frequencies), aspect_ratio=0.01, dpi=dpi)
+    return build_b64_png(__rgb_log2(LAS_FILE_PATH, frequencies), aspect_ratio=0.01, dpi=dpi)
 
 
 def __rgb_log(path_to_las, frequencies):
@@ -121,6 +122,22 @@ def __rgb_log(path_to_las, frequencies):
 #    plt.savefig('RGB_log_'+wellname+'.png')
 
     return rgb_array
+
+def __rgb_log2(path_to_las, frequencies):
+    RC_t = las_to_rc(path_to_las)
+
+    clipping = 0.9
+    f_power = .5
+
+    synth = np.zeros((len(RC_t),3))
+    for i, f in enumerate(frequencies):
+        w = bruges.filters.ricker(f=f, duration = 0.512, dt = 0.004)
+        bandpass = np.convolve(w, RC_t, mode='same')
+        synth[:,i] = np.abs(hilbert(bandpass))
+
+    synth = clip_and_normalize(synth)
+
+    return synth[:,np.newaxis,:]
 
 if __name__ == '__main__':
     pass
