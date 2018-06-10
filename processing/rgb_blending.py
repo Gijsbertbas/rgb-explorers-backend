@@ -60,8 +60,7 @@ def rgb_log_png(x, y, frequencies):
     precomputed_data = get_precomputed_data()
     slices = list(map(lambda freq: clip_and_normalize(precomputed_data[x, y, :, freq]), frequencies))
     r = numpy.swapaxes(numpy.dstack(slices), 0, 1)
-    build_png(r, aspect_ratio=0.05)
-    return
+    return build_png(r, aspect_ratio=0.05)
 
 
 if __name__ == '__main__':
