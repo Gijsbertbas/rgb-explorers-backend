@@ -89,10 +89,10 @@ def rgb_log(path_to_las, frequencies):
     c_3 = c_3**f_power
     c_3 = np.where(c_3 >= clipping, 1.0, c_3/clipping)
 
-    rgb_blend = np.zeros((len(RC_t),1, 3))
-    rgb_blend[:,:,0] = c_1[:,np.newaxis]
-    rgb_blend[:,:,1] = c_2[:,np.newaxis]
-    rgb_blend[:,:,2] = c_3[:,np.newaxis]
+    rgb_array = np.zeros((len(RC_t),1, 3))
+    rgb_array[:,:,0] = c_1[:,np.newaxis]
+    rgb_array[:,:,1] = c_2[:,np.newaxis]
+    rgb_array[:,:,2] = c_3[:,np.newaxis]
 
 #    fig, axes = plt.subplots(1,2,figsize=(10,10))
 #    axes[0].plot(synth[:,1],-t[:-1], 'k')
@@ -108,7 +108,7 @@ def rgb_log(path_to_las, frequencies):
 #    wellname = filename.split('.')[0]
 #    plt.savefig('RGB_log_'+wellname+'.png')
 
-    return rgb_blend
+    return rgb_array
 
 if __name__ == '__main__':
     pass

@@ -136,3 +136,20 @@ def line_blend_png(direction, index, frequencies):
         E = ricker_expansion(trace, frequencies)
         blend_line[:, x, :] = clip_and_normalize(E)
     return build_png(numpy.swapaxes(blend_line,0,1))
+
+def build_synth(rgb_array):
+    synth = numpy.squeeze(rgb_array[:,:,1])
+
+    t = numpy.arange(0, 1.8, 0.004) # hard coded...
+
+    fig, ax = plt.subplots(figsize=(2,12))
+    ax.plot(synth,-t[:-1], 'k')
+    ax.fill_betweenx(-t[:-1], synth,  0,  synth > 0.0,  color='k', alpha = 1.0)
+    ax.set_title('synthetic', size=18)
+    ax.set_ylabel('time (ms)', size = 16)
+    ax.get_xaxis().set_ticks([])
+
+    mem_file = io.BytesIO()
+    plt.savefig(mem_file, format="png")
+    mem_file.seek(0)
+    return mem_file.read()
