@@ -40,6 +40,9 @@ def clip_and_normalize(array):
 
 def seismic_blend_png(direction, index, frequencies):
     precomputed_data = get_precomputed_data()
+    freq_min, freq_max = 0, precomputed_data.shape[3] - 1
+    if any(filter(lambda f: f < freq_min or f > freq_max, frequencies)):
+        raise ValueError("Frequencies are supposed to rely in [%s, %s[." % (freq_min, freq_max))
     slices = []
     for freq in frequencies:
         if direction == 'x':
@@ -57,8 +60,7 @@ def rgb_log_png(x, y, frequencies):
     precomputed_data = get_precomputed_data()
     slices = list(map(lambda freq: clip_and_normalize(precomputed_data[x, y, :, freq]), frequencies))
     r = numpy.swapaxes(numpy.dstack(slices), 0, 1)
-    build_png(r, aspect_ratio=0.05)
-    return
+    return build_png(r, aspect_ratio=0.05)
 
 
 if __name__ == '__main__':
