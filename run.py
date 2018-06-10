@@ -1,11 +1,12 @@
 from flask import Flask, json, request, jsonify, Response
+from flask_cors import CORS
 
 import processing
 import processing.triplets
 import processing.rgb_blending
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/api/generate_triplets', methods=['POST'])
 def generate_triplets():
